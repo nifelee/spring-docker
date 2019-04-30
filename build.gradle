@@ -1,0 +1,41 @@
+plugins {
+  id 'org.springframework.boot' version '2.1.4.RELEASE'
+  id "com.palantir.docker" version "0.22.1"
+  id 'java'
+}
+
+apply plugin: 'io.spring.dependency-management'
+
+group = 'com.example'
+version = '1.0.1-SNAPSHOT'
+sourceCompatibility = '1.8'
+
+configurations {
+  compileOnly {
+    extendsFrom annotationProcessor
+  }
+}
+
+repositories {
+  mavenCentral()
+}
+
+dependencies {
+  implementation 'org.springframework.boot:spring-boot-starter-actuator'
+  implementation 'org.springframework.boot:spring-boot-starter-web'
+  compileOnly 'org.projectlombok:lombok'
+  annotationProcessor 'org.projectlombok:lombok'
+  testImplementation 'org.springframework.boot:spring-boot-starter-test'
+}
+
+docker {
+  files bootJar
+
+  name "$project.group/$project.name"
+  tag "tags", "$project.group/$project.name:$project.version"
+
+  dockerfile file('src/main/docker/Dockerfile')
+  buildArgs([BUILD_VERSION: project.version])
+
+  noCache true
+}
